@@ -1,1 +1,1 @@
-# Smartbox-explorer
+# Smartbox-extension
