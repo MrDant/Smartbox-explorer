@@ -18,5 +18,12 @@
     "page": "options/options.html",
     "chrome_style": true
   },
-  "permissions": ["storage", "tabs", "activeTab"]
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "cookies",
+    "http://*/*",
+    "https://*/*"
+  ]
 }
