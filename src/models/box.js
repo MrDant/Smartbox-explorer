@@ -21,15 +21,10 @@ export default class Box {
       map((str) => {
         const match = str.match(/dataLayer.*\}\)\;/g)[0];
         const obj = JSON.parse(match.substring(15, match.length - 2));
-<<<<<<< HEAD
         this.info = obj.redemption_products[0];
         this.name = this.info.name;
         this.category = this.info.category;
         this.id = this.info.id;
-=======
-        console.log(obj);
-        this.info = obj.redemption_products[0];
->>>>>>> 2efe523... update structure
         return this;
       })
     );
