@@ -36,6 +36,14 @@ export default class BoxService {
     Storage.set({ boxes: val });
   }
 
+  getBoxById(id) {
+    return this.boxesSubject.pipe(
+      map((boxes) => {
+        return boxes ? boxes[id] : null;
+      })
+    );
+  }
+
   getBoxActivities(box) {
     let stream = new StreamReader(
       `${Api.activities}?pim_id=${box.id}&pagesize=200`
@@ -48,6 +56,30 @@ export default class BoxService {
       }),
       map((data) => {
         return data.items;
+      })
+    );
+  }
+
+  syncBox(box) {
+    return new StreamReader(box.link).extractData().pipe(
+      catchError((error) => {
+        if (error.status == 301) {
+          return new StreamReader(error.url).extractData();
+        }
+        return throwError(error);
+      }),
+      map((str) => {
+        console.log(box.url);
+        const match = str.match(/dataLayer.*\}\)\;/g)[0];
+        const obj = JSON.parse(match.substring(15, match.length - 2));
+        console.log(obj);
+        box.info = obj.redemption_products[0];
+        box.name = box.info.name;
+        box.category = box.info.category;
+        let boxes = this.boxesSubject.getValue();
+        boxes[box.info.id] = box;
+        this.boxes$ = boxes;
+        return box;
       })
     );
   }
@@ -70,10 +102,10 @@ export default class BoxService {
           return Array.from(elements).map((element) => new Box(element));
         }),
         switchMap(async (boxes) => {
-          const result = [];
+          const result = {};
           for (const box of boxes) {
-            console.log(box);
-            result.push(await box.getInfo().toPromise());
+            let updateBox = await box.getInfo().toPromise();
+            result[updateBox.id] = updateBox;
           }
           return result;
         }),
