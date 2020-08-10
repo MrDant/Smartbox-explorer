@@ -3,7 +3,11 @@
     <Header />
     <div class="siimple-content">
       <div class="siimple-h6 siimple--text-center">
+<<<<<<< HEAD
         Vous possédez {{ boxes ? Object.keys(boxes).length : "..." }} SmartBox
+=======
+        Vous possédez {{ boxes ? boxes.length : "..." }} SmartBox
+>>>>>>> 2efe523... update structure
         <span
           @click="doSyncBoxs"
           :class="{ load: load }"
@@ -16,7 +20,11 @@
           v-for="(box, index) in boxes"
           :key="index"
         >
+<<<<<<< HEAD
           <div class="siimple-card-body" @click="goToOptionPage(box.info.id)">
+=======
+          <div class="siimple-card-body" @click="goToHome">
+>>>>>>> 2efe523... update structure
             <img :src="box.img" />
             <!-- <div class="siimple-card-title">{{ box.info.name }}</div> -->
           </div>
@@ -47,12 +55,17 @@ export default {
     };
   },
   methods: {
+<<<<<<< HEAD
     goToOptionPage(id = "") {
       ChromeWindow.focusTo(
         chrome.extension.getURL(
           "./options/options.html" + (id ? "?box=" + id : "")
         )
       );
+=======
+    goToHome() {
+      ChromeWindow.focusTo(chrome.extension.getURL("./options/index.html"));
+>>>>>>> 2efe523... update structure
     },
     goTologinPage() {
       ChromeWindow.focusTo(Api.login);
@@ -79,15 +92,25 @@ export default {
 </script>
 
 <style scoped>
+<<<<<<< HEAD
 .siimple-card {
   cursor: pointer;
 }
+=======
+>>>>>>> 2efe523... update structure
 .load * {
   -webkit-animation: rotation 2s linear infinite;
   -moz-animation: rotation 2s linear infinite;
   -ms-animation: rotation 2s linear infinite;
 }
 
+<<<<<<< HEAD
+=======
+.siimple-card {
+  cursor: pointer;
+}
+
+>>>>>>> 2efe523... update structure
 @-webkit-keyframes rotation {
   0% {
     -webkit-transform: rotate(0deg);

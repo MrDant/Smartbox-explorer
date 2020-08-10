@@ -1,6 +1,7 @@
 <template>
   <div style="width:100vw">
     <Header />
+<<<<<<< HEAD
     <div v-if="selectedBox" class="siiimple-card">
       <div class="siimple-card-body siimple--mx-5 siimple--my-2" style="position: relative">
         <div
@@ -92,20 +93,26 @@
         <Activity v-for="(activity, index) of activities" :key="index" :activity="activity" />
       </div>
     </div>
+=======
+>>>>>>> 2efe523... update structure
   </div>
 </template>
 
 <script>
 import Header from "../common/components/Header";
+<<<<<<< HEAD
 import Activity from "./Activity";
 import BoxService from "../services/boxService";
 import { map, filter } from "rxjs/operators";
 import { BehaviorSubject } from "rxjs";
+=======
+>>>>>>> 2efe523... update structure
 export default {
   name: "App",
   data: () => {
     return {
       idBox: new URLSearchParams(window.location.search).get("box"),
+<<<<<<< HEAD
       selectedBox: null,
       connected: true,
       boxService: null,
@@ -122,10 +129,14 @@ export default {
         activities: [],
       },
       activities: [],
+=======
+      connected: true,
+>>>>>>> 2efe523... update structure
     };
   },
   components: {
     Header,
+<<<<<<< HEAD
     Activity,
   },
   methods: {
@@ -191,6 +202,8 @@ export default {
     );
     this.boxService = BoxService.getInstance();
     this.watchSelectedBox();
+=======
+>>>>>>> 2efe523... update structure
   },
 };
 </script>

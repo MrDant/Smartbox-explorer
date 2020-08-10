@@ -8,7 +8,10 @@ export default class Api {
   static get login() {
     return "https://www.smartbox.com/fr/voucher/beneficiary/registerlogin/panel/accountLoginPanel/";
   }
+<<<<<<< HEAD
   static get googleMaps() {
     return "https://www.google.fr/maps/place/";
   }
+=======
+>>>>>>> 2efe523... update structure
 }
