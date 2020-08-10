@@ -9,7 +9,7 @@
     <div class="siimple--float-right siimple--ml-5">
       <a class="siimple-navbar-item hover" @click="goTologinPage">
         {{
-        connected ? "Se connecter" : "Se reconnecter"
+        !connected ? "Se connecter" : "Se reconnecter"
         }}
       </a>
     </div>
@@ -18,6 +18,7 @@
 
 <script>
 import ChromeWindow from "../utils/chromeWindow";
+import Api from "../../models/api";
 import "@fortawesome/fontawesome-free/js/fontawesome";
 import "@fortawesome/fontawesome-free/js/solid";
 import "@fortawesome/fontawesome-free/js/regular";
