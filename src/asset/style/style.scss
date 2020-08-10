@@ -19,27 +19,11 @@ body {
   background-color: siimple-legacy-color("navy", "dark") !important;
 }
 
-.siimple-btn--white {
-  background-color: $siimple-default-white;
-}
-
 .hover:hover {
   color: siimple-legacy-color("orange") !important;
   cursor: pointer;
 }
 
-.pointer {
-  cursor: pointer;
-}
-
 .secondary {
   color: siimple-legacy-color("orange") !important;
-}
-
-.primary {
-  color: siimple-legacy-color("blue");
-}
-
-.bg-accent {
-  background-color: siimple-legacy-color("orange", "light") !important;
 }
