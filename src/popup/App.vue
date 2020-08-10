@@ -3,7 +3,7 @@
     <Header />
     <div class="siimple-content">
       <div class="siimple-h6 siimple--text-center">
-        Vous possédez {{ boxes ? boxes.length : "..." }} SmartBox
+        Vous possédez {{ boxes ? Object.keys(boxes).length : "..." }} SmartBox
         <span
           @click="doSyncBoxs"
           :class="{ load: load }"
@@ -16,7 +16,7 @@
           v-for="(box, index) in boxes"
           :key="index"
         >
-          <div class="siimple-card-body" @click="goToHome">
+          <div class="siimple-card-body" @click="goToOptionPage(box.info.id)">
             <img :src="box.img" />
             <!-- <div class="siimple-card-title">{{ box.info.name }}</div> -->
           </div>
@@ -47,8 +47,12 @@ export default {
     };
   },
   methods: {
-    goToHome() {
-      ChromeWindow.focusTo(chrome.extension.getURL("./options/index.html"));
+    goToOptionPage(id = "") {
+      ChromeWindow.focusTo(
+        chrome.extension.getURL(
+          "./options/options.html" + (id ? "?box=" + id : "")
+        )
+      );
     },
     goTologinPage() {
       ChromeWindow.focusTo(Api.login);
@@ -75,14 +79,13 @@ export default {
 </script>
 
 <style scoped>
+.siimple-card {
+  cursor: pointer;
+}
 .load * {
   -webkit-animation: rotation 2s linear infinite;
   -moz-animation: rotation 2s linear infinite;
   -ms-animation: rotation 2s linear infinite;
-}
-
-.siimple-card {
-  cursor: pointer;
 }
 
 @-webkit-keyframes rotation {
