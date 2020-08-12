@@ -19,6 +19,10 @@ body {
   background-color: siimple-legacy-color("navy", "dark") !important;
 }
 
+.siimple-btn--white {
+  background-color: $siimple-default-white;
+}
+
 .hover:hover {
   color: siimple-legacy-color("orange") !important;
   cursor: pointer;
@@ -26,4 +30,8 @@ body {
 
 .secondary {
   color: siimple-legacy-color("orange") !important;
+}
+
+.bg-accent {
+  background-color: siimple-legacy-color("orange", "light") !important;
 }
