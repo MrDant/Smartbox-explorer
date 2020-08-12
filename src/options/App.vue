@@ -6,13 +6,14 @@
         <div
           class="siimple-btn siimple-btn--orange siimple--mx-2 siimple--my-2"
           style="position:absolute; top:0; right: 0"
-          @click="syncSelectedBox"
+          @click="syncSelectedBoxInfo"
+          :disabled="loading.box"
         >
-          <div class="load" v-if="load">
+          <div class="load load-bouton" v-if="loading.box">
             <i class="fas fa-sync siimple--ml-1"></i>
           </div>
 
-          <span :style="'visibility:' + (load ? 'hidden' :'visible')">Synchronize</span>
+          <b :style="'visibility:' + (loading.box ? 'hidden' :'visible')">Synchroniser</b>
         </div>
 
         <div class="siimple-grid">
@@ -35,13 +36,58 @@
         </div>
       </div>
     </div>
+    <div class="siimple-card siimple--my-3">
+      <div class="siimple-card-header siimple--mx-5">
+        <div class="row">
+          <label class="siimple-label">Les activités:</label>
+          <select class="siimple-select siimple-btn--white" v-model="activitySelected">
+            <option disabled>Toutes les activités</option>
+            <option
+              v-for="(activity, index) of selectedBox ? selectedBox.activities_name : []"
+              :key="index"
+            >{{activity}}</option>
+          </select>
+          <div
+            class="siimple-btn siimple-btn--orange siimple--mx-2 siimple--my-2"
+            @click="addActivity()"
+          >Ajouter</div>
+
+          <span
+            :class="{load: loading.activities}"
+            class="hover siimple--mx-2"
+            style="position: relative"
+            @click="syncBoxActivities()"
+            :disabled="loading.activities"
+          >
+            <i class="fas fa-sync"></i>
+          </span>
+          <div
+            class="siimple-btn siimple-btn--primary siimple--ml-auto"
+            @click="search()"
+          >Rechercher</div>
+        </div>
+        <div class="row">
+          <span
+            class="chips siimple--color-primary hover siimple--mx-3"
+            v-for="(activity, index) of activitiesFilter.activities"
+            :key="index"
+            @click="removeActivity(activity)"
+          >{{activity}}</span>
+        </div>
+      </div>
+      <div class="siimple-card-body siimple--mx-5 siimple--text-center activities-container">
+        <Activity v-for="(activity, index) of activities" :key="index" :activity="activity" />
+      </div>
+      <div class="siimple-card-footer siimple--mx-5">Résultat :</div>
+    </div>
   </div>
 </template>
 
 <script>
 import Header from "../common/components/Header";
+import Activity from "./Activity";
 import BoxService from "../services/boxService";
-import { map } from "rxjs/operators";
+import { map, filter } from "rxjs/operators";
 export default {
   name: "App",
   data: () => {
@@ -50,24 +96,56 @@ export default {
       selectedBox: null,
       connected: true,
       boxService: null,
-      load: false,
+      loading: { box: false, activities: false },
+      activitySelected: "",
       translation: {
         box_type: "Type",
         price: "Prix",
         quantity: "Quantité",
         variant: "Variante",
       },
+      activitiesFilter: {
+        activities: [],
+      },
+      activities: [],
     };
   },
   components: {
     Header,
+    Activity,
   },
   methods: {
-    syncSelectedBox() {
-      this.load = true;
-      this.boxService.syncBox(this.selectedBox).subscribe({
-        next: (box) => (this.selectedBox = box),
-        complete: () => (this.load = false),
+    removeActivity(activity) {
+      this.activitiesFilter.activities = this.activitiesFilter.activities.filter(
+        (name) => name != activity
+      );
+    },
+    addActivity() {
+      if (
+        !this.activitiesFilter.activities.includes(this.activitySelected) &&
+        this.activitySelected != ""
+      ) {
+        this.activitiesFilter.activities.push(this.activitySelected);
+      }
+    },
+    syncSelectedBoxInfo() {
+      this.loading.box = true;
+      this.boxService.syncBoxInfo(this.selectedBox).subscribe({
+        complete: () => (this.loading.box = false),
+      });
+    },
+    watchSelectedBox() {
+      this.boxService
+        .getBoxById(this.idBox)
+        .pipe(filter((data) => data != null))
+        .subscribe((box) => {
+          this.selectedBox = box;
+        });
+    },
+    syncBoxActivities() {
+      this.loading.activities = true;
+      this.boxService.syncBoxActivities(this.selectedBox).subscribe({
+        complete: () => (this.loading.activities = false),
       });
     },
     getInfoFiltered(box) {
@@ -80,25 +158,15 @@ export default {
       });
       return res;
     },
+    search() {
+      this.activities = this.selectedBox.activities.filter((activity) => {
+        return this.activitiesFilter.activities.includes(activity.name);
+      });
+    },
   },
   created() {
     this.boxService = BoxService.getInstance();
-    this.boxService
-      .getBoxById(this.idBox)
-      .pipe(
-        map((box) => {
-          if (!box) return null;
-          Object.keys(box.info).forEach((label) => {
-            if (!this.translation[label]) {
-              delete box.info[label];
-            }
-          });
-          return box;
-        })
-      )
-      .subscribe((box) => {
-        this.selectedBox = box;
-      });
+    this.watchSelectedBox();
   },
 };
 </script>
@@ -113,7 +181,7 @@ export default {
   width: 50%;
 }
 
-.load {
+.load-bouton {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -127,6 +195,25 @@ export default {
   -webkit-animation: rotation 2s linear infinite;
   -moz-animation: rotation 2s linear infinite;
   -ms-animation: rotation 2s linear infinite;
+}
+
+.siimple-card-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.activities-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 @-webkit-keyframes rotation {
