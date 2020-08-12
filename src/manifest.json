@@ -23,6 +23,7 @@
     "tabs",
     "activeTab",
     "cookies",
+    "unlimitedStorage",
     "http://*/*",
     "https://*/*"
   ]
