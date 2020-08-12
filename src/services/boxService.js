@@ -36,6 +36,12 @@ export default class BoxService {
     Storage.set({ boxes: val });
   }
 
+  saveBox(box) {
+    let boxes = this.boxesSubject.getValue();
+    Object.assign(boxes[box.info.id], box);
+    this.boxes$ = boxes;
+  }
+
   getBoxById(id) {
     return this.boxesSubject.pipe(
       map((boxes) => {
@@ -44,9 +50,9 @@ export default class BoxService {
     );
   }
 
-  getBoxActivities(box) {
+  syncBoxActivities(box) {
     let stream = new StreamReader(
-      `${Api.activities}?pim_id=${box.id}&pagesize=200`
+      `${Api.activities}?pim_id=${box.id}&pagesize=200&page=1`
     );
     return stream.extractDataToJson().pipe(
       catchError((error) => {
@@ -54,13 +60,30 @@ export default class BoxService {
           ChromeWindow.focusTo(Api.login);
         }
       }),
-      map((data) => {
-        return data.items;
+      switchMap(async (data) => {
+        box.total = data.total;
+        box.activities = data.items;
+        while (data.items.length == 200) {
+          let stream = new StreamReader(
+            `${Api.activities}?pim_id=${box.id}&pagesize=200&page=${data.page +
+              1}`
+          );
+          data = await stream.extractDataToJson().toPromise();
+          box.activities = box.activities.concat(data.items);
+          console.log("new", data);
+        }
+        box.activities_name = box.activities
+          .map((activity) => activity.name)
+          .reduce((acc, current) => {
+            if (current != "" && !acc.includes(current)) acc.push(current);
+            return acc;
+          }, []);
+        this.saveBox(box);
       })
     );
   }
 
-  syncBox(box) {
+  syncBoxInfo(box) {
     return new StreamReader(box.link).extractData().pipe(
       catchError((error) => {
         if (error.status == 301) {
@@ -69,17 +92,13 @@ export default class BoxService {
         return throwError(error);
       }),
       map((str) => {
-        console.log(box.url);
         const match = str.match(/dataLayer.*\}\)\;/g)[0];
         const obj = JSON.parse(match.substring(15, match.length - 2));
         console.log(obj);
         box.info = obj.redemption_products[0];
         box.name = box.info.name;
         box.category = box.info.category;
-        let boxes = this.boxesSubject.getValue();
-        boxes[box.info.id] = box;
-        this.boxes$ = boxes;
-        return box;
+        this.saveBox(box);
       })
     );
   }
