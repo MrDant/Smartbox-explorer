@@ -1,0 +1,37 @@
+@import "siimple/index.scss";
+@import "siimple/scss/_variables.scss";
+
+@function siimple-legacy-color($color, $index: "base") {
+  //Check for white color
+  @if $color == "white" {
+    @return $siimple-default-white;
+  }
+  $list: map-get($siimple-legacy-palette, "#{$color}");
+  $value: map-get($list, "#{$index}");
+  @return $value;
+}
+
+body {
+  width: max-content;
+}
+
+.siimple-navbar {
+  background-color: siimple-legacy-color("navy", "dark") !important;
+}
+
+.siimple-btn--white {
+  background-color: $siimple-default-white;
+}
+
+.hover:hover {
+  color: siimple-legacy-color("orange") !important;
+  cursor: pointer;
+}
+
+.secondary {
+  color: siimple-legacy-color("orange") !important;
+}
+
+.bg-accent {
+  background-color: siimple-legacy-color("orange", "light") !important;
+}

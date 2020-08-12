@@ -1,6 +1,6 @@
 import { switchMap, map } from "rxjs/operators";
 import { fromFetch } from "rxjs/fetch";
-import { throwError } from "rxjs/index";
+import { throwError } from "rxjs";
 
 export default class StreamReader {
   constructor(url) {
