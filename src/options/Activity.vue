@@ -22,7 +22,6 @@
 </template>
 <script>
 import ChromeWindow from "../common/utils/chromeWindow";
-import "vue-snap/dist/vue-snap.css";
 import Carousel from "../common/components/Carousel";
 export default {
   name: "App",
