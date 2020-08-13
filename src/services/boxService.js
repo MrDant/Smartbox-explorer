@@ -5,7 +5,7 @@ import Activity from "../models/activity";
 import StreamReader from "../common/utils/streamReader";
 import Api from "../models/api";
 import ChromeWindow from "../common/utils/chromeWindow";
-import { NEVER, throwError, BehaviorSubject } from "rxjs";
+import { NEVER, throwError, BehaviorSubject, EMPTY } from "rxjs";
 
 export default class BoxService {
   constructor() {
@@ -97,7 +97,10 @@ export default class BoxService {
       map((str) => {
         const match = str.match(/dataLayer.*\}\)\;/g)[0];
         const obj = JSON.parse(match.substring(15, match.length - 2));
-        console.log(obj);
+        if (obj.ecommerce) {
+          ChromeWindow.focusTo(Api.login);
+          return EMPTY;
+        }
         box.info = obj.redemption_products[0];
         box.name = box.info.name;
         box.category = box.info.category;
