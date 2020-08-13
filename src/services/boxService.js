@@ -1,6 +1,7 @@
 import { map, catchError, tap, switchMap } from "rxjs/operators";
 import Storage from "../common/utils/storage";
 import Box from "../models/box";
+import Activity from "../models/activity";
 import StreamReader from "../common/utils/streamReader";
 import Api from "../models/api";
 import ChromeWindow from "../common/utils/chromeWindow";
@@ -62,14 +63,16 @@ export default class BoxService {
       }),
       switchMap(async (data) => {
         box.total = data.total;
-        box.activities = data.items;
+        box.activities = data.items.map((raw) => new Activity(raw));
         while (data.items.length == 200) {
           let stream = new StreamReader(
             `${Api.activities}?pim_id=${box.id}&pagesize=200&page=${data.page +
               1}`
           );
           data = await stream.extractDataToJson().toPromise();
-          box.activities = box.activities.concat(data.items);
+          box.activities = box.activities.concat(
+            data.items.map((raw) => new Activity(raw))
+          );
           console.log("new", data);
         }
         box.activities_name = box.activities
