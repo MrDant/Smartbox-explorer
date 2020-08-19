@@ -1,12 +1,8 @@
 <template>
-  <div class="siimple-card" style="width: max-content">
+  <div class="siimple-card">
     <div class="siimple-card-body">
       <Carousel :sliderClass="sliderClass">
-        <div
-          class="slide"
-          v-for="(img, index) of activity.image_gallery"
-          :key="index"
-        >
+        <div class="slide" v-for="(img, index) of activity.image_gallery" :key="index">
           <img :src="img" @click="goToBuy()" />
         </div>
       </Carousel>
@@ -14,7 +10,8 @@
       <div class="activity-details primary">
         <div id="description">{{ activity.short_description }}</div>
         <div id="distance" v-if="distance">
-          <i class="fas fa-map-marker-alt"></i> {{ distance }} km
+          <i class="fas fa-map-marker-alt"></i>
+          {{ distance }} km
         </div>
       </div>
     </div>
@@ -55,7 +52,6 @@ export default {
     },
   },
   created() {
-    console.log(this.activity);
     navigator.geolocation.getCurrentPosition((geo) => {
       this.distance = this.getDistance(
         geo.coords.latitude,
@@ -75,5 +71,14 @@ export default {
 }
 .activity-details {
   font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.activity-details * {
+  max-width: 50%;
+}
+.siimple-card {
+  flex-basis: 20%;
 }
 </style>
