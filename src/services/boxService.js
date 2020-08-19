@@ -51,17 +51,20 @@ export default class BoxService {
     );
   }
 
-  syncBoxActivities(box) {
+  syncBoxActivities(box, progress) {
     let stream = new StreamReader(
-      `${Api.activities}?pim_id=${box.id}&pagesize=200&page=1`
+      `${Api.activities}?pim_id=${box.id}&pagesize=200&page=1&sortby=position`
     );
     return stream.extractDataToJson().pipe(
       catchError((error) => {
+        console.log(error);
         if (error.status == 301 && error.url == Api.login) {
           ChromeWindow.focusTo(Api.login);
         }
+        return EMPTY;
       }),
       switchMap(async (data) => {
+        progress.next(this.progressNumber(data));
         box.total = data.total;
         box.activities = data.items.map((raw) => new Activity(raw));
         while (data.items.length == 200) {
@@ -73,14 +76,16 @@ export default class BoxService {
           box.activities = box.activities.concat(
             data.items.map((raw) => new Activity(raw))
           );
-          console.log("new", data);
+
+          progress.next(this.progressNumber(data));
         }
         box.activities_name = box.activities
           .map((activity) => activity.name)
           .reduce((acc, current) => {
             if (current != "" && !acc.includes(current)) acc.push(current);
             return acc;
-          }, []);
+          }, [])
+          .sort();
         this.saveBox(box);
       })
     );
@@ -138,5 +143,15 @@ export default class BoxService {
           this.boxes$ = boxes;
         })
       );
+  }
+
+  progressNumber(data) {
+    return Math.round(
+      (data.page /
+        (data.total % data.pagesize > 0
+          ? Math.round(data.total / data.pagesize) + 1
+          : data.total / data.pagesize)) *
+        100
+    );
   }
 }
