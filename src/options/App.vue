@@ -40,13 +40,19 @@
       <div class="siimple-card-header siimple--mx-5">
         <div class="row">
           <label class="siimple-label">Les activités:</label>
-          <select class="siimple-select siimple-btn--white" v-model="activitySelected">
-            <option disabled>Toutes les activités</option>
+          <input
+            class="siimple-select siimple-btn--white"
+            list="browsers"
+            name="browser"
+            id="browser"
+            v-model="activitySelected"
+          />
+          <datalist id="browsers">
             <option
               v-for="(activity, index) of selectedBox ? selectedBox.activities_name : []"
               :key="index"
             >{{activity}}</option>
-          </select>
+          </datalist>
           <div
             class="siimple-btn siimple-btn--orange siimple--mx-2 siimple--my-2"
             @click="addActivity()"
@@ -66,19 +72,25 @@
             @click="search()"
           >Rechercher</div>
         </div>
+        <div class="siimple-progress siimple-progress--success" v-if="loading.activities">
+          <span :style="{width: `${loading.activities}%`}">{{loading.activities}}% Completed</span>
+        </div>
         <div class="row">
           <span
-            class="chips siimple--color-primary hover siimple--mx-3"
+            class="chips siimple-tag siimple-tag--dark hover siimple--mx-3"
             v-for="(activity, index) of activitiesFilter.activities"
             :key="index"
             @click="removeActivity(activity)"
-          >{{activity}}</span>
+          >
+            {{activity}}
+            <i class="far fa-times-circle" style="padding-left: 0.5rem;"></i>
+          </span>
         </div>
       </div>
       <div class="siimple-card-body siimple--mx-5 siimple--text-center activities-container">
+        <span v-if="this.activities.length == 0">Aucun résultat</span>
         <Activity v-for="(activity, index) of activities" :key="index" :activity="activity" />
       </div>
-      <div class="siimple-card-footer siimple--mx-5">Résultat :</div>
     </div>
   </div>
 </template>
@@ -88,6 +100,7 @@ import Header from "../common/components/Header";
 import Activity from "./Activity";
 import BoxService from "../services/boxService";
 import { map, filter } from "rxjs/operators";
+import { BehaviorSubject } from "rxjs";
 export default {
   name: "App",
   data: () => {
@@ -96,7 +109,8 @@ export default {
       selectedBox: null,
       connected: true,
       boxService: null,
-      loading: { box: false, activities: false },
+      loading: { box: false, activities: 0 },
+      activitiesProgress: null,
       activitySelected: "",
       translation: {
         box_type: "Type",
@@ -127,6 +141,7 @@ export default {
       ) {
         this.activitiesFilter.activities.push(this.activitySelected);
       }
+      this.activitySelected = "";
     },
     syncSelectedBoxInfo() {
       this.loading.box = true;
@@ -143,10 +158,12 @@ export default {
         });
     },
     syncBoxActivities() {
-      this.loading.activities = true;
-      this.boxService.syncBoxActivities(this.selectedBox).subscribe({
-        complete: () => (this.loading.activities = false),
-      });
+      this.activitiesProgress.next(1);
+      this.boxService
+        .syncBoxActivities(this.selectedBox, this.activitiesProgress)
+        .subscribe({
+          complete: () => this.activitiesProgress.next(0),
+        });
     },
     getInfoFiltered(box) {
       if (!box) return null;
@@ -159,12 +176,19 @@ export default {
       return res;
     },
     search() {
-      this.activities = this.selectedBox.activities.filter((activity) => {
-        return this.activitiesFilter.activities.includes(activity.name);
-      });
+      this.addActivity();
+      this.activities = this.selectedBox.activities.filter((activity) =>
+        this.activitiesFilter.activities.find((name) => {
+          return !!activity.name.toLowerCase().match(name.toLowerCase());
+        })
+      );
     },
   },
   created() {
+    this.activitiesProgress = new BehaviorSubject(0);
+    this.activitiesProgress.subscribe(
+      (progress) => (this.loading.activities = progress)
+    );
     this.boxService = BoxService.getInstance();
     this.watchSelectedBox();
   },
@@ -179,6 +203,13 @@ export default {
 }
 .box_info-col {
   width: 50%;
+}
+
+.chips {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0;
 }
 
 .load-bouton {
@@ -202,6 +233,10 @@ export default {
   flex-direction: column;
 }
 
+.siimple-progress {
+  background-color: white;
+}
+
 .activities-container {
   display: flex;
   flex-direction: row;
@@ -212,7 +247,7 @@ export default {
 .row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
   flex-wrap: wrap;
 }
 
