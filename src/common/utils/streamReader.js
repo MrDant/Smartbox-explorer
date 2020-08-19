@@ -1,6 +1,7 @@
 import { switchMap, map } from "rxjs/operators";
 import { fromFetch } from "rxjs/fetch";
 import { throwError } from "rxjs";
+import Api from "../../models/api";
 
 export default class StreamReader {
   constructor(url) {
@@ -10,7 +11,7 @@ export default class StreamReader {
   extractData() {
     return fromFetch(this.url).pipe(
       switchMap(async (response) => {
-        if (response.redirected) {
+        if (response.redirected && response.url != Api.history) {
           return throwError({
             status: 301,
             url: response.url,
