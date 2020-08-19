@@ -24,7 +24,7 @@
     "activeTab",
     "cookies",
     "unlimitedStorage",
-    "http://*/*",
-    "https://*/*"
+    "http://*.smartbox.com/*",
+    "https://*.smartbox.com/*"
   ]
 }
