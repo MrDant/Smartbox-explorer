@@ -23,6 +23,7 @@ export default class Activity {
       } else {
         this[key] = raw[key];
       }
+      this["distance"] = { maps: null, km: null };
     });
   }
 }

@@ -2,17 +2,26 @@
   <div class="siimple-card">
     <div class="siimple-card-body">
       <Carousel :sliderClass="sliderClass">
-        <div class="slide pointer" v-for="(img, index) of activity.image_gallery" :key="index">
+        <div
+          class="slide pointer"
+          v-for="(img, index) of activity.image_gallery"
+          :key="index"
+        >
           <img :src="img" @click="goToBuy()" />
         </div>
       </Carousel>
       <div class="activity-name">{{ activity.name }}</div>
       <div class="activity-details primary">
         <div id="description">{{ activity.short_description }}</div>
-        <div id="distance" v-if="!!this.distance.maps">
-          <a :href="this.distance.maps" class="hover primary" target="_blank">
+        <div id="distance" v-if="!!this.activity.distance.maps">
+          <a
+            :href="this.activity.distance.maps"
+            class="hover primary"
+            target="_blank"
+          >
             <i class="fas fa-map-marker-alt"></i>
-            {{ this.distance.km }} km
+            {{ !this.activity.distance.km ? "..." : this.activity.distance.km }}
+            km
           </a>
         </div>
       </div>
@@ -30,7 +39,6 @@ export default {
   data: () => {
     return {
       sliderClass: "hover",
-      distance: { maps: null, km: null },
     };
   },
   components: {
@@ -64,12 +72,14 @@ export default {
         `http://router.project-osrm.org/route/v1/car/${lon1},${lat1};${lon2},${lat2}`
       );
       stream.extractDataToJson().subscribe((data) => {
-        this.distance.km = Math.floor(data.routes[0].distance / 10) / 100;
+        this.activity.distance.km =
+          Math.floor(data.routes[0].distance / 10) / 100;
       });
-      this.distance.maps = this.getMapLink();
     },
   },
   created() {
+    console.log(this.activity);
+    this.activity.distance.maps = this.getMapLink();
     navigator.geolocation.getCurrentPosition((geo) => {
       this.getDistance(
         geo.coords.latitude,

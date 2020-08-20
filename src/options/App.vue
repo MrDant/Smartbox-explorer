@@ -2,7 +2,10 @@
   <div style="width:100vw">
     <Header />
     <div v-if="selectedBox" class="siiimple-card">
-      <div class="siimple-card-body siimple--mx-5 siimple--my-2" style="position: relative">
+      <div
+        class="siimple-card-body siimple--mx-5 siimple--my-2"
+        style="position: relative"
+      >
         <div
           class="siimple-btn siimple-btn--orange siimple--mx-2 siimple--my-2"
           style="position:absolute; top:0; right: 0"
@@ -13,7 +16,9 @@
             <i class="fas fa-sync siimple--ml-1"></i>
           </div>
 
-          <b :style="'visibility:' + (loading.box ? 'hidden' :'visible')">Synchroniser</b>
+          <b :style="'visibility:' + (loading.box ? 'hidden' : 'visible')"
+            >Synchroniser</b
+          >
         </div>
 
         <div class="siimple-grid">
@@ -22,14 +27,16 @@
               <img :src="selectedBox.img" />
             </div>
             <div class="siimple-grid-col siimple-grid-col--9">
-              <div class="siimple-box-title">{{selectedBox.name}}</div>
-              <div class="siimple-box-subtitle">{{selectedBox.category}}</div>
+              <div class="siimple-box-title">{{ selectedBox.name }}</div>
+              <div class="siimple-box-subtitle">{{ selectedBox.category }}</div>
               <div class="box_info-container siimple--mt-3">
                 <div
                   class="box_info-col"
                   v-for="(info, label) in getInfoFiltered(selectedBox)"
                   :key="label"
-                >{{translation[label]}} -> {{info}}</div>
+                >
+                  {{ translation[label] }} -> {{ info }}
+                </div>
               </div>
             </div>
           </div>
@@ -49,17 +56,22 @@
           />
           <datalist id="browsers">
             <option
-              v-for="(activity, index) of selectedBox ? selectedBox.activities_name : []"
+              v-for="(activity, index) of selectedBox
+                ? selectedBox.activities_name
+                : []"
               :key="index"
-            >{{activity}}</option>
+              >{{ activity }}</option
+            >
           </datalist>
           <div
             class="siimple-btn siimple-btn--orange siimple--mx-2 siimple--my-2"
             @click="addActivity()"
-          >Ajouter</div>
+          >
+            Ajouter
+          </div>
 
           <span
-            :class="{load: loading.activities}"
+            :class="{ load: loading.activities }"
             class="hover siimple--mx-2"
             style="position: relative"
             @click="syncBoxActivities()"
@@ -70,10 +82,17 @@
           <div
             class="siimple-btn siimple-btn--primary siimple--ml-auto"
             @click="search()"
-          >Rechercher</div>
+          >
+            Rechercher
+          </div>
         </div>
-        <div class="siimple-progress siimple-progress--success" v-if="loading.activities">
-          <span :style="{width: `${loading.activities}%`}">{{loading.activities}}% Completed</span>
+        <div
+          class="siimple-progress siimple-progress--success"
+          v-if="loading.activities"
+        >
+          <span :style="{ width: `${loading.activities}%` }"
+            >{{ loading.activities }}% Completed</span
+          >
         </div>
         <div class="row">
           <span
@@ -82,14 +101,31 @@
             :key="index"
             @click="removeActivity(activity)"
           >
-            {{activity}}
+            {{ activity }}
             <i class="far fa-times-circle" style="padding-left: 0.5rem;"></i>
           </span>
         </div>
       </div>
-      <div class="siimple-card-body siimple--mx-5 siimple--text-center activities-container">
-        <span v-if="this.activities.length == 0">Aucun résultat</span>
-        <Activity v-for="(activity, index) of activities" :key="index" :activity="activity" />
+      <div class="siimple-card-body siimple--mx-5 siimple--text-center">
+        <div id="filter">
+          <span>Filtrer par : </span>
+          <div class="siimple-btn-group">
+            <div
+              class="siimple-btn siimple-btn--light siimple--my-2"
+              @click="distanceFilter"
+            >
+              Distance
+            </div>
+          </div>
+        </div>
+        <div class="activities-container">
+          <span v-if="this.activities.length == 0">Aucun résultat</span>
+          <Activity
+            v-for="(activity, index) of activities"
+            :key="index"
+            :activity="activity"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -129,6 +165,13 @@ export default {
     Activity,
   },
   methods: {
+    distanceFilter() {
+      this.activities.sort((a, b) => {
+        if (a.distance.km > b.distance.km) return 1;
+        if (a.distance.km == b.distance.km) return 0;
+        return -1;
+      });
+    },
     removeActivity(activity) {
       this.activitiesFilter.activities = this.activitiesFilter.activities.filter(
         (name) => name != activity
